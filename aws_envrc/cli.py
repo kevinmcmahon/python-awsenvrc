@@ -3,9 +3,8 @@ import configparser
 import sys
 from pathlib import Path
 
-
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-
+ENV_FILENAME = '.envrc'
 
 def load_config(cfg):
     if not Path(cfg).is_file():
@@ -52,10 +51,16 @@ def write_envrc(args_region, args_profile):
     else:
         region = parse_config_region(config_file, profile)
 
-    print('Generating .envrc for {} - {}'.format(profile, region))
     creds = parse_credentials(creds_file, profile)
 
-    file = open('.envrc', 'w')
+    print('Generating .envrc for {} - {}'.format(profile, region))
+    if Path(ENV_FILENAME).is_file():
+        option = 'a'
+    else:
+        option = 'w'
+
+    file = open('.envrc', option)
+    file.write('# Profile: {}\n'.format(profile))
     file.write('export AWS_DEFAULT_REGION={}\n'.format(region))
     file.write('export AWS_ACCESS_KEY_ID={}\n'.format(creds.get("key")))
     file.write('export AWS_SECRET_ACCESS_KEY={}\n'.format(creds.get("secret")))
